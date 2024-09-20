@@ -1,0 +1,32 @@
+package templates
+
+import (
+	"github.com/your-username/coles-stream/internal/models"
+)
+
+templ Stream(posts []models.Post) {
+	<div class="stream">
+		for _, post := range posts {
+			<div class="post">
+				<h2>{post.Type}</h2>
+				<p>{post.Description}</p>
+				<div class="thoughts">
+					for _, thought := range post.Thoughts {
+						<p>{thought.Content}</p>
+					}
+				</div>
+				<div class="tags">
+					for _, tag := range post.Tags {
+						<span class="tag">{tag.Name}</span>
+					}
+				</div>
+				<p>Status: {post.PublishStatus}</p>
+				<p>Visibility: {string(post.Visibility)}</p>
+				<a href={templ.SafeURL("/post/" + string(post.ID) + "/edit")}>Edit</a>
+			</div>
+		}
+	</div>
+	<script>
+		// Implement infinite scroll logic here
+	</script>
+}

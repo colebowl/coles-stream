@@ -1,0 +1,75 @@
+package templates
+
+import (
+	"github.com/your-username/coles-stream/internal/models"
+	"strings"
+)
+
+templ PostForm(post *models.Post) {
+	<form method="POST">
+		<div>
+			<label for="type">Type:</label>
+			<select name="type" id="type">
+				<option value="image" selected?={post != nil && post.Type == models.Image}>Image</option>
+				<option value="link" selected?={post != nil && post.Type == models.Link}>Link</option>
+				<option value="video" selected?={post != nil && post.Type == models.Video}>Video</option>
+				<option value="file" selected?={post != nil && post.Type == models.File}>File</option>
+			</select>
+		</div>
+		<div>
+			<label for="description">Description:</label>
+			<textarea name="description" id="description">
+				if post != nil {
+					{post.Description}
+				}
+			</textarea>
+		</div>
+		<div id="thoughts-container">
+			<label for="thoughts">Thoughts:</label>
+			if post != nil {
+				for _, thought := range post.Thoughts {
+					<textarea name="thoughts[]">{thought.Content}</textarea>
+				}
+			}
+			<textarea name="thoughts[]"></textarea>
+			<button type="button" onclick="addThought()">Add Thought</button>
+		</div>
+		<div>
+			<label for="tags">Tags:</label>
+			<input type="text" name="tags" id="tags" value={joinTags(post)} />
+		</div>
+		<div>
+			<label for="publish_status">Publish Status:</label>
+			<select name="publish_status" id="publish_status">
+				<option value="draft" selected?={post != nil && post.PublishStatus == "draft"}>Draft</option>
+				<option value="published" selected?={post != nil && post.PublishStatus == "published"}>Published</option>
+			</select>
+		</div>
+		<div>
+			<label for="visibility">Visibility:</label>
+			<select name="visibility" id="visibility">
+				<option value="published" selected?={post != nil && post.Visibility == models.Published}>Published</option>
+				<option value="private" selected?={post != nil && post.Visibility == models.Private}>Private</option>
+			</select>
+		</div>
+		<button type="submit">Save Post</button>
+	</form>
+}
+
+script addThought() {
+	const thoughtsContainer = document.getElementById('thoughts-container');
+	const newThought = document.createElement('textarea');
+	newThought.name = 'thoughts[]';
+	thoughtsContainer.appendChild(newThought);
+}
+
+func joinTags(post *models.Post) string {
+	if post == nil {
+		return ""
+	}
+	var tagNames []string
+	for _, tag := range post.Tags {
+		tagNames = append(tagNames, tag.Name)
+	}
+	return strings.Join(tagNames, ", ")
+}
